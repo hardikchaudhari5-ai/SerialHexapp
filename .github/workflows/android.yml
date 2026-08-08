@@ -23,6 +23,49 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    - name: Generate Android Project Files
+      run: |
+        echo "include ':app'" > settings.gradle
+        
+        cat << 'EOF' > build.gradle
+        plugins {
+            id 'com.android.application' version '8.1.0' apply false
+            id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
+        }
+        EOF
+
+        mkdir -p app
+        cat << 'EOF' > app/build.gradle
+        plugins {
+            id 'com.android.application'
+            id 'org.jetbrains.kotlin.android'
+        }
+        android {
+            namespace 'com.example.serialhex'
+            compileSdk 33
+            defaultConfig {
+                applicationId "com.example.serialhex"
+                minSdk 21
+                targetSdk 33
+                versionCode 1
+                versionName "1.0"
+            }
+        }
+        dependencies {
+            implementation 'androidx.core:core-ktx:1.10.1'
+        }
+        EOF
+
+        mkdir -p app/src/main
+        if [ ! -f app/src/main/AndroidManifest.xml ]; then
+            cat << 'EOF' > app/src/main/AndroidManifest.xml
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+                package="com.example.serialhex">
+                <application />
+            </manifest>
+            EOF
+        fi
+
     - name: Build Debug APK with Gradle
       run: gradle assembleDebug
 
@@ -31,4 +74,3 @@ jobs:
       with:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
-        
