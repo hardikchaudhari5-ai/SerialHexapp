@@ -28,7 +28,22 @@ jobs:
         python3 -c "
         import os
         with open('settings.gradle', 'w') as f:
-            f.write(\"include ':app'\")
+            f.write('''pluginManagement {
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        include ':app'
+        ''')
 
         with open('build.gradle', 'w') as f:
             f.write('''plugins {
