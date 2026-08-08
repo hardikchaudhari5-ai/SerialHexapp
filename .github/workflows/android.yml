@@ -25,18 +25,20 @@ jobs:
 
     - name: Generate Android Project Files
       run: |
-        echo "include ':app'" > settings.gradle
-        
-        cat << 'EOF' > build.gradle
-        plugins {
+        python3 -c "
+        import os
+        with open('settings.gradle', 'w') as f:
+            f.write(\"include ':app'\")
+
+        with open('build.gradle', 'w') as f:
+            f.write('''plugins {
             id 'com.android.application' version '8.1.0' apply false
             id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
-        }
-        EOF
+        }''')
 
-        mkdir -p app
-        cat << 'EOF' > app/build.gradle
-        plugins {
+        os.makedirs('app', exist_ok=True)
+        with open('app/build.gradle', 'w') as f:
+            f.write('''plugins {
             id 'com.android.application'
             id 'org.jetbrains.kotlin.android'
         }
@@ -44,27 +46,23 @@ jobs:
             namespace 'com.example.serialhex'
             compileSdk 33
             defaultConfig {
-                applicationId "com.example.serialhex"
+                applicationId \\\"com.example.serialhex\\\"
                 minSdk 21
                 targetSdk 33
                 versionCode 1
-                versionName "1.0"
+                versionName \\\"1.0\\\"
             }
         }
         dependencies {
             implementation 'androidx.core:core-ktx:1.10.1'
-        }
-        EOF
+        }''')
 
-        mkdir -p app/src/main
-        if [ ! -f app/src/main/AndroidManifest.xml ]; then
-            cat << 'EOF' > app/src/main/AndroidManifest.xml
-            <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-                package="com.example.serialhex">
-                <application />
-            </manifest>
-            EOF
-        fi
+        os.makedirs('app/src/main', exist_ok=True)
+        manifest_path = 'app/src/main/AndroidManifest.xml'
+        if not os.path.exists(manifest_path):
+            with open(manifest_path, 'w') as f:
+                f.write('''<manifest xmlns:android=\\\"http://schemas.android.com/apk/res/android\\\" package=\\\"com.example.serialhex\\\">\n    <application />\n</manifest>''')
+        "
 
     - name: Build Debug APK with Gradle
       run: gradle assembleDebug
