@@ -27,6 +27,8 @@ jobs:
 
     - name: Generate Android Project Files
       run: |
+        rm -rf app build.gradle settings.gradle
+
         cat << 'EOF' > settings.gradle
         pluginManagement {
             repositories {
@@ -95,7 +97,6 @@ jobs:
             override fun onCreate(savedInstanceState: Bundle?) {
                 super.onCreate(savedInstanceState)
                 
-                // Create a simple UI layout programmatically
                 val layout = android.widget.LinearLayout(this).apply {
                     orientation = android.widget.LinearLayout.VERTICAL
                     setPadding(40, 40, 40, 40)
@@ -128,7 +129,7 @@ jobs:
         }
         EOF
 
-        mkdir -p app/src/main/AndroidManifest.xml
+        mkdir -p app/src/main
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.example.serialhex">
