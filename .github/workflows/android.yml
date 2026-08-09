@@ -76,27 +76,65 @@ jobs:
                 jvmTarget = '17'
             }
         }
+        dependencies {
+            implementation 'androidx.appcompat:appcompat:1.6.1'
+            implementation 'com.google.android.material:material:1.9.0'
+        }
         EOF
 
         mkdir -p app/src/main/java/com/example/serialhex
         cat << 'EOF' > app/src/main/java/com/example/serialhex/MainActivity.kt
         package com.example.serialhex
 
-        import android.app.Activity
         import android.os.Bundle
+        import android.widget.Button
+        import android.widget.TextView
+        import androidx.appcompat.app.AppCompatActivity
 
-        class MainActivity : Activity() {
+        class MainActivity : AppCompatActivity() {
             override fun onCreate(savedInstanceState: Bundle?) {
                 super.onCreate(savedInstanceState)
+                
+                // Create a simple UI layout programmatically
+                val layout = android.widget.LinearLayout(this).apply {
+                    orientation = android.widget.LinearLayout.VERTICAL
+                    setPadding(40, 40, 40, 40)
+                }
+
+                val titleText = TextView(this).apply {
+                    text = "SerialHex Utility"
+                    textSize = 22f
+                    setPadding(0, 0, 0, 30)
+                }
+
+                val connectButton = Button(this).apply {
+                    text = "Connect USB"
+                    setOnClickListener {
+                        titleText.text = "Status: Connecting..."
+                    }
+                }
+
+                val dataLogView = TextView(this).apply {
+                    text = "Ready for serial data..."
+                    setPadding(0, 30, 0, 0)
+                }
+
+                layout.addView(titleText)
+                layout.addView(connectButton)
+                layout.addView(dataLogView)
+
+                setContentView(layout)
             }
         }
         EOF
 
+        mkdir -p app/src/main/AndroidManifest.xml
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.example.serialhex">
             <application
-                android:label="SerialHex">
+                android:label="SerialHex"
+                android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
                 <activity
                     android:name=".MainActivity"
                     android:exported="true">
@@ -110,7 +148,7 @@ jobs:
         EOF
 
     - name: Build Debug APK with Gradle
-      run: gradle assembleDebug --scan || true
+      run: gradle assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
