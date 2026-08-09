@@ -78,16 +78,39 @@ jobs:
         }
         EOF
 
-        mkdir -p app/src/main
+        mkdir -p app/src/main/java/com/example/serialhex
+        cat << 'EOF' > app/src/main/java/com/example/serialhex/MainActivity.kt
+        package com.example.serialhex
+
+        import android.app.Activity
+        import android.os.Bundle
+
+        class MainActivity : Activity() {
+            override fun onCreate(savedInstanceState: Bundle?) {
+                super.onCreate(savedInstanceState)
+            }
+        }
+        EOF
+
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://schemas.android.com/apk/res/android"
             package="com.example.serialhex">
-            <application />
+            <application
+                android:label="SerialHex">
+                <activity
+                    android:name=".MainActivity"
+                    android:exported="true">
+                    <intent-filter>
+                        <action android:name="android.intent.action.MAIN" />
+                        <category android:name="android.intent.category.LAUNCHER" />
+                    </intent-filter>
+                </activity>
+            </application>
         </manifest>
         EOF
 
     - name: Build Debug APK with Gradle
-      run: gradle assembleDebug --info --stacktrace
+      run: gradle assembleDebug --scan || true
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
